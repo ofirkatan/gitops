@@ -1,0 +1,63 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../../../base
+- service.yaml
+- configmap.yaml
+{{- if eq .Values.route.type "route" }}
+- route.yaml
+{{- end }}
+{{- if eq .Values.route.type "ingress" }}
+- ingress.yaml
+{{- end }}
+
+namespace: '{{ .Values.kustomize.namespace }}'
+
+namePrefix: '{{ .Values.kustomize.namePrefix }}-'
+
+configMapGenerator:
+- name: {{ .Values.kustomize.configmapName }}
+  literals:
+  - IMAGE={{ .Values.kustomize.image.newName }}
+  - TAG={{ .Values.kustomize.image.newTag }}
+  - MIGDAL_ENV=test
+
+
+secretGenerator:
+- name: secret-ca-cert
+  files:
+  - certs/tls.crt
+  - certs/tls.key
+  type: kubernetes.io/tls
+  options:
+    disableNameSuffixHash: true
+{{- if eq .Values.route.type "ingress" }}
+- name: secret-ca-des-cert
+  files:
+  - data.tls.crt=certs/tls.crt
+  options:
+    disableNameSuffixHash: true
+{{- end }}
+
+
+images:
+- name: image-name
+  newName: {{ .Values.kustomize.image.newName }}
+  newTag: '{{ .Values.kustomize.image.newTag }}'
+
+patches:
+- path: deploy-patch.yaml
+
+patchesJSON6902:
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: '{{ .Values.kustomize.namePrefix }}-app'
+  patch: |-
+    - op: replace
+      path: /spec/replicas
+      value: {{ .Values.kustomize.replicas }}
+
+

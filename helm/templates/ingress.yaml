@@ -1,0 +1,33 @@
+{{- if eq .Values.route.type "ingress" }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  annotations:
+    route.openshift.io/termination: "edge"
+    route.openshift.io/destination-ca-certificate-secret: '{{ .Values.kustomize.namePrefix }}-secret-ca-des-cert'
+spec:
+  rules:
+  {{- if eq .Values.host.type "custom" }}
+  - host: '{{ .Values.host.name }}'
+  {{- else}}
+  - host: '{{ .Values.kustomize.namePrefix }}-{{ .Values.kustomize.namespace }}.{{ .Values.route.domain }}'
+  {{- end }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: '{{ .Values.kustomize.namePrefix }}-service'
+            port:
+              number: {{ .Values.applicationPort }}
+  tls:
+  - hosts:
+    {{- if eq .Values.host.type "custom" }}
+    - '{{ .Values.host.name }}'
+    {{- else}}
+    - '{{ .Values.kustomize.namePrefix }}-{{ .Values.kustomize.namespace }}.{{ .Values.route.domain }}'
+    {{- end }}
+    secretName: '{{ .Values.kustomize.namePrefix }}-secret-ca-cert'
+{{- end }}
