@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: devops-application-dev
+spec:
+  #generators:
+    #- merge:
+    #    mergeKeys:
+    #      - path.basename
+  generators:
+    - git:
+        directories:
+          - path: overlays/dev/*/*
+        repoURL: >-
+          https://gitlab.co.il/devops.git
+        revision: main
+    #    - git:
+    #        files:
+    #          - path: overlays/test/*/*/config.yaml
+    #        repoURL: >-
+    #          https://gitlab.co.il/devops.git
+    #        revision: main
+  template:
+    metadata:
+      name: '{{path.basename}}'
+    spec:
+      destination:
+      #  namespace: '{{destination.namespace}}'
+        server: 'https://kubernetes.default.svc'
+      project: '{{path[2]}}'
+      source:
+        path: '{{path}}'
+        repoURL: >-
+          https://gitlab.co.il/devops.git
+        targetRevision: main
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+        automated:
+          prune: true
+          selfHeal: true
+      # ignoreDifferences:
+      # - group: apps
+      #   kind: Deployment
+      #   jsonPointers:
+      #   - /spec/replicas

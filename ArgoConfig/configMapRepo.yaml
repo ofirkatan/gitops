@@ -1,0 +1,20 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: argocd-tls-certs-cm
+  labels:
+    app.kubernetes.io/managed-by: openshift-gitops
+    app.kubernetes.io/name: argocd-tls-certs-cm
+    app.kubernetes.io/part-of: argocd
+immutable: false
+data:
+  gitlab.co.il: |-
+    app.key
+    app.crt
+  migdal-group.co.il: |-
+    -----BEGIN CERTIFICATE-----
+    sub
+    -----END CERTIFICATE-----
+    -----BEGIN CERTIFICATE-----
+    root
+    -----END CERTIFICATE-----

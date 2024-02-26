@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: application-test-pullrequest-matrix
+spec:
+  generators:
+    - matrix:
+        generators:
+          - git:
+              directories:
+                - path: overlays/pr/*/*
+              repoURL: >-
+                'https://gitlab.co.il/'
+              revision: main
+          - pullRequest:
+              gitlab:
+                project: '519'
+                api: 'https://gitlab.co.il/'
+                tokenRef:
+                  secretName: devops-cd-token
+                  key: token
+                pullRequestState: opened
+                insecure: true
+              requeueAfterSeconds: 1800                
+  template:
+    metadata:
+      name: '{{path.basename}}-{{branch}}-{{number}}'
+    spec:
+      destination:
+        server: 'https://kubernetes.default.svc'
+      project: '{{path[2]}}'
+      source:
+        kustomize:
+          nameSuffix: '{{branch}}'
+          commonLabels:
+            app.kubernetes.io/instance: '{{branch}}-{{number}}'
+        path: '{{path}}'
+        repoURL: >-
+          'https://gitlab.co.il/'
+        targetRevision: '{{branch}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true

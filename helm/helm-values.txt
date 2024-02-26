@@ -1,0 +1,36 @@
+namespace: devops-argocd
+
+configmap:
+  name: configmap
+  
+volumes:
+  name: html-nginx
+  mountPath: /usr/share/nginx/html
+
+kustomize:
+  replicas: 2
+  configmapName: env-config
+  namePrefix: fwa
+  image:
+    newName: ocp-docker-repo.repo/images/nginx-hello
+    newTag: v1
+  resources:
+    requests: 
+      cpu: 5m
+      memory: 10Mi
+    limits:
+      cpu: 10m
+      memory: 20Mi
+route:
+  name: route
+# Accept two values ingress or route
+  type: ingress
+  domain: apps.non-prod-ocp4.migdal-group.co.il
+
+applicationPort: 8080
+
+host:
+  name: host
+# Accept two values auto or custom
+  type: custom
+
