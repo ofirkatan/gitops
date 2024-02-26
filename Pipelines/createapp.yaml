@@ -60,7 +60,7 @@ non-prod/apps אם אין תעודה ייעודית נא להשאיר את הע�
             script: [$class: 'GroovyScript', fallbackScript: [classpath: [], oldScript: '', sandbox: false, script: 'return ["error"]'], 
             script: [classpath: [], oldScript: '', sandbox: false, script: """
 if (HostType.equals("custom")){
-  return "<input name='value' type='text' style='min-width:400px' placeholder='i.e: https://openshift.apps.non-prod-ocp4.migdal-group.co.il'/>"
+  return "<input name='value' type='text' style='min-width:400px' placeholder='i.e: https://openshift.apps.openshift.co.il'/>"
 }
 else{
   return "<input name='value' type='text' placeholder='available only on custom HostType' disabled=true/>"
