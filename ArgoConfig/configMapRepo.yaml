@@ -11,7 +11,7 @@ data:
   gitlab.co.il: |-
     app.key
     app.crt
-  migdal-group.co.il: |-
+  domain.co.il: |-
     -----BEGIN CERTIFICATE-----
     sub
     -----END CERTIFICATE-----
