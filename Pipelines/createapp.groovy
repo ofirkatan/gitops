@@ -11,7 +11,7 @@ return "<input name='value' type='text' placeholder='[Example: devops-argocd]'/>
 ]]],
         [$class: 'ChoiceParameter', 
             choiceType: 'PT_SINGLE_SELECT', filterLength: 1, filterable: false, 
-            name: 'CmdbSystemName', description: 'devops-argocd :לדוגמה Openshift- נא בחר את שם המערכת ב',
+            name: 'SystemName', description: 'devops-argocd :לדוגמה Openshift- נא בחר את שם המערכת ב',
             script: [$class: 'GroovyScript', fallbackScript: [classpath: [], oldScript: '', sandbox: false, script: 'return ["error"]'], script: [classpath: [], oldScript: '', sandbox: false, 
             script: """
 return ["devops-platform"] 
@@ -136,7 +136,7 @@ pipeline {
     stages {
 		stage ('Git clone Helm repository'){
 		    steps{
-                git credentialsId: '$', url: 'https://gitlab.migdal-group.co.il/DevOps/openshift-group/overlay-template.git'
+                git credentialsId: '$', url: 'https://gitlab.co.il/DevOps/overlay-template.git'
             }
 		}
         stage ('Generate app files with Helm'){
@@ -149,32 +149,32 @@ pipeline {
         }
         stage ('Git clone'){
 		    steps{
-                git branch: 'main', credentialsId: '$', url: 'https://gitlab.migdal-group.co.il/DevOps/openshift-group/ocp-cd-devops.git'
+                git branch: 'main', credentialsId: '$', url: 'https://gitlab.co.il/DevOps/devops.git'
             }
 		}
         stage ('Copy files to git repository'){
 		    steps{
                 sh "mv ${AppName} ${AppName}-test"
-                sh "mv ${AppName}-test overlays/test/${CmdbSystemName}"
+                sh "mv ${AppName}-test overlays/test/${SystemName}"
             }
 		}
         stage ('Copy certificate'){
             steps{
-                withCredentials([usernamePassword(credentialsId: 'OCP-APPT', passwordVariable: 'PASS', usernameVariable: 'USER')]){
+                withCredentials([usernamePassword(credentialsId: '$ID', passwordVariable: 'PASS', usernameVariable: 'USER')]){
                     sh "curl -u ${USER}:${PASS} -O https://tls.crt"
                     sh "curl -u ${USER}:${PASS} -O https://tls.key"
-                    sh "mv -f tls.* overlays/test/${CmdbSystemName}/${AppName}-test/certs/"
+                    sh "mv -f tls.* overlays/test/${SystemName}/${AppName}-test/certs/"
                 }
             }
 		}        
         stage ('Push Changes to git repository'){
 		    steps{
-                withCredentials([usernamePassword(credentialsId: 'OCP-APPT', passwordVariable: 'PASS', usernameVariable: 'USER')]){
-                    sh "git config --global user.name ocp-appt"
-                    sh "git config --global user.email ocp-appt@migdal.co.il"
+                withCredentials([usernamePassword(credentialsId: '$ID', passwordVariable: 'PASS', usernameVariable: 'USER')]){
+                    sh "git config --global user.name username"
+                    sh "git config --global user.email username@migdal.co.il"
                     sh "git add ."
                     sh "git commit -m '${MESSAGE}'"
-                    sh "git push https://$USER:$PASS@gitlab.migdal-group.co.il/DevOps/openshift-group/ocp-cd-devops.git"
+                    sh "git push https://$USER:$PASS@gitlab.co.il/DevOps/devops.git"
                 }
             }
 		}

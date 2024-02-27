@@ -12,7 +12,7 @@ kustomize:
   configmapName: env-config
   namePrefix: fwa
   image:
-    newName: ocp-docker-repo.repo/images/nginx-hello
+    newName: docker.repo/images/nginx-hello
     newTag: v1
   resources:
     requests: 
@@ -25,7 +25,7 @@ route:
   name: route
 # Accept two values ingress or route
   type: ingress
-  domain: apps.non-prod-ocp4.migdal-group.co.il
+  domain: apps.domain.co.il
 
 applicationPort: 8080
 

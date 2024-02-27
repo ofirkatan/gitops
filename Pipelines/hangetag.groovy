@@ -2,7 +2,7 @@ properties([
     parameters([
         [$class: 'ChoiceParameter', 
             choiceType: 'PT_SINGLE_SELECT', filterLength: 1, filterable: false, 
-            name: 'CmdbSystemName', description: 'devops-argocd :לדוגמה Openshift- נא בחר את שם המערכת ב',
+            name: 'SystemName', description: 'devops-argocd :לדוגמה Openshift- נא בחר את שם המערכת ב',
             script: [$class: 'GroovyScript', fallbackScript: [classpath: [], oldScript: '', sandbox: false, script: 'return ["error"]'], script: [classpath: [], oldScript: '', sandbox: false, 
             script: """
 return ["devops-platform"] 
@@ -38,24 +38,24 @@ pipeline {
     stages {
 		stage ('Git clone'){
 		    steps{
-                git branch: 'main', credentialsId: 'd2678a8e-6437-486c-b229-31cfc1a016fc', url: 'https://gitlab.migdal-group.co.il/DevOps/openshift-group/ocp-cd-devops.git'
+                git branch: 'main', credentialsId: '$ID', url: 'https://gitlab.co.il/DevOps/devops.git'
             }
 		}
         stage ('Change Image Tag'){
             steps{
                 script{
-                    sh "sed -i 's|newTag:.*|newTag: \"${TagName}\"|g' overlays/test/${CmdbSystemName}/${AppName}-test/kustomization.yaml"       
+                    sh "sed -i 's|newTag:.*|newTag: \"${TagName}\"|g' overlays/test/${SystemName}/${AppName}-test/kustomization.yaml"       
                 }
             }
         }
         stage ('Push Changes to git repository'){
 		    steps{
-                withCredentials([usernamePassword(credentialsId: 'OCP-APPT', passwordVariable: 'PASS', usernameVariable: 'USER')]){
-                    sh "git config --global user.name ocp-appt"
-                    sh "git config --global user.email ocp-appt@migdal.co.il"
+                withCredentials([usernamePassword(credentialsId: '$ID', passwordVariable: 'PASS', usernameVariable: 'USER')]){
+                    sh "git config --global user.name username"
+                    sh "git config --global user.email username@domain.co.il"
                     sh "git add ."
                     sh "git commit -m '${MESSAGE}'"
-                    sh "git push https://$USER:$PASS@gitlab.migdal-group.co.il/DevOps/openshift-group/ocp-cd-devops.git"
+                    sh "git push https://$USER:$PASS@gitlab.co.il/DevOps/devops.git"
                 }
             }
 		}
